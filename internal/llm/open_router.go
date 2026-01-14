@@ -4,17 +4,19 @@ import (
 	"context"
 	"encoding/json"
 
+	"agent-coach/internal/models"
+
 	"github.com/google/martian/log"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
 )
 
 type OpenRouterProvider struct {
-	config *LLMProviderConfig
+	config *models.LLMProviderConfig
 	client openai.Client
 }
 
-func NewOpenRouterProvider(config *LLMProviderConfig) Provider {
+func NewOpenRouterProvider(config *models.LLMProviderConfig) Provider {
 	client := openai.NewClient(
 		option.WithAPIKey("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"),
 		option.WithBaseURL("https://openrouter.ai/api/v1"),
@@ -26,7 +28,7 @@ func (p *OpenRouterProvider) Name() string {
 	return "openrouter"
 }
 
-func (p *OpenRouterProvider) Complete(ctx context.Context, req CompletionRequest) (*CompletionResponse, error) {
+func (p *OpenRouterProvider) Complete(ctx context.Context, req *CompletionRequest) (*CompletionResponse, error) {
 	params := p.buildParams(req)
 	completion, err := p.client.Chat.Completions.New(ctx, *params)
 	if err != nil {
@@ -64,7 +66,7 @@ func (p *OpenRouterProvider) IsAvailable() bool {
 	return p.config.IsActive
 }
 
-func (p *OpenRouterProvider) buildParams(req CompletionRequest) *openai.ChatCompletionNewParams {
+func (p *OpenRouterProvider) buildParams(req *CompletionRequest) *openai.ChatCompletionNewParams {
 	messages := make([]openai.ChatCompletionMessageParamUnion, len(req.Messages)+1)
 	messages[0] = openai.SystemMessage(req.SystemPrompt)
 	for _, message := range req.Messages {
@@ -97,7 +99,7 @@ func (p *OpenRouterProvider) buildParams(req CompletionRequest) *openai.ChatComp
 	params := openai.ChatCompletionNewParams{
 		Messages: messages,
 		Tools:    tools,
-		Model:    req.Model,
+		Model:    openai.ChatModel(model),
 	}
 
 	return &params

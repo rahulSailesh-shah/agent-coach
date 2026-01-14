@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sync"
 
+	"agent-coach/internal/models"
+
 	"github.com/google/martian/log"
 )
 
@@ -29,7 +31,7 @@ func NewRouter(db *storage.DB) (*Router, error) {
 	return r, nil
 }
 
-func (r *Router) SaveProviderConfig(ctx context.Context, config *LLMProviderConfig) error {
+func (r *Router) SaveProviderConfig(ctx context.Context, config *models.LLMProviderConfig) error {
 	query := `
 		INSERT INTO llm_providers (name, provider, base_url, api_key, default_model, is_default, is_active)
 		VALUES (:name, :provider, :base_url, :api_key, :default_model, :is_default, :is_active)
@@ -42,7 +44,7 @@ func (r *Router) SaveProviderConfig(ctx context.Context, config *LLMProviderConf
 	return r.refreshProviders(ctx)
 }
 
-func (r *Router) Complete(ctx context.Context, req CompletionRequest, providers ...string) (*CompletionResponse, error) {
+func (r *Router) Complete(ctx context.Context, req *CompletionRequest, providers ...string) (*CompletionResponse, error) {
 	provider := r.resolveProvider(providers...)
 	if provider == nil {
 		return nil, fmt.Errorf("no provider found")
@@ -73,18 +75,18 @@ func (r *Router) loadProvidersFromDB(ctx context.Context) error {
 	return nil
 }
 
-func (r *Router) getProviderConfigs(ctx context.Context) ([]*LLMProviderConfig, error) {
+func (r *Router) getProviderConfigs(ctx context.Context) ([]*models.LLMProviderConfig, error) {
 	query := `
 		SELECT * FROM llm_providers ORDER BY is_default DESC
 	`
-	var configs []*LLMProviderConfig
+	var configs []*models.LLMProviderConfig
 	if err := r.db.SelectContext(ctx, &configs, query); err != nil {
 		return nil, err
 	}
 	return configs, nil
 }
 
-func (r *Router) createProviderFromConfig(config *LLMProviderConfig) (Provider, error) {
+func (r *Router) createProviderFromConfig(config *models.LLMProviderConfig) (Provider, error) {
 	switch config.Provider {
 	case "openrouter":
 		return NewOpenRouterProvider(config), nil

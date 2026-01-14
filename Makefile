@@ -13,6 +13,12 @@ migrate-up:
 		touch $(DB_URL); \
 	fi
 	goose $(DB_DRIVER) -dir internal/migrations $(DB_URL) up
+
+migrate-down:
+	@if [ ! -f $(DB_URL) ]; then \
+		return 1; \
+	fi
+	goose $(DB_DRIVER) -dir internal/migrations $(DB_URL) down
 	
 create-migration:
 	goose -dir internal/migrations $(DB_DRIVER) $(DB_URL) create $(name) sql

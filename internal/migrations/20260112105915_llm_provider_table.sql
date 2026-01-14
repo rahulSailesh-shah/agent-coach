@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 CREATE TABLE IF NOT EXISTS llm_providers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     provider TEXT NOT NULL CHECK(provider IN ('ollama', 'openrouter')),
     base_url TEXT,
