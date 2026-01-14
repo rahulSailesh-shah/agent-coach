@@ -18,8 +18,8 @@ type OpenRouterProvider struct {
 
 func NewOpenRouterProvider(config *models.LLMProviderConfig) Provider {
 	client := openai.NewClient(
-		option.WithAPIKey("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"),
-		option.WithBaseURL("https://openrouter.ai/api/v1"),
+		option.WithAPIKey(config.APIKey),
+		option.WithBaseURL(config.BaseURL),
 	)
 	return &OpenRouterProvider{config: config, client: client}
 }
