@@ -34,32 +34,11 @@ func (p *OpenRouterProvider) Complete(ctx context.Context, req *CompletionReques
 	if err != nil {
 		return nil, err
 	}
-
-	toolCalls := make([]ToolCall, len(completion.Choices[0].Message.ToolCalls))
-	for i, toolCall := range completion.Choices[0].Message.ToolCalls {
-		var arguments map[string]any
-		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
-		if err != nil {
-			log.Errorf("failed to unmarshal tool call arguments: %v", err)
-			continue
-		}
-		toolCalls[i] = ToolCall{
-			ID:   toolCall.ID,
-			Type: toolCall.Type,
-			Function: ToolFunction{
-				Name:      toolCall.Function.Name,
-				Arguments: arguments,
-			},
-		}
+	response, err := parseResponse(completion)
+	if err != nil {
+		return nil, err
 	}
-
-	return &CompletionResponse{
-		Content:      completion.Choices[0].Message.Content,
-		ToolCalls:    toolCalls,
-		Model:        completion.Model,
-		Usage:        int(completion.Usage.TotalTokens),
-		FinishReason: completion.Choices[0].FinishReason,
-	}, nil
+	return response, nil
 }
 
 func (p *OpenRouterProvider) IsAvailable() bool {
@@ -106,7 +85,7 @@ func (p *OpenRouterProvider) buildParams(req *CompletionRequest) *openai.ChatCom
 
 }
 
-func buildFunctionTool(tool Tool) openai.ChatCompletionToolUnionParam {
+func buildFunctionTool(tool models.Tool) openai.ChatCompletionToolUnionParam {
 	required := make([]string, 0)
 	properties := make(map[string]any)
 	for name, param := range tool.Parameters {
@@ -129,4 +108,31 @@ func buildFunctionTool(tool Tool) openai.ChatCompletionToolUnionParam {
 		Description: openai.String(tool.Description),
 		Parameters:  parameters,
 	})
+}
+
+func parseResponse(completion *openai.ChatCompletion) (*CompletionResponse, error) {
+	toolCalls := make([]models.ToolCall, len(completion.Choices[0].Message.ToolCalls))
+	for i, toolCall := range completion.Choices[0].Message.ToolCalls {
+		var arguments map[string]any
+		err := json.Unmarshal([]byte(toolCall.Function.Arguments), &arguments)
+		if err != nil {
+			log.Errorf("failed to unmarshal tool call arguments: %v", err)
+			continue
+		}
+		toolCalls[i] = models.ToolCall{
+			ID:   toolCall.ID,
+			Type: toolCall.Type,
+			Function: models.ToolFunction{
+				Name:      toolCall.Function.Name,
+				Arguments: arguments,
+			},
+		}
+	}
+	return &CompletionResponse{
+		Content:      completion.Choices[0].Message.Content,
+		ToolCalls:    toolCalls,
+		Model:        completion.Model,
+		Usage:        int(completion.Usage.TotalTokens),
+		FinishReason: completion.Choices[0].FinishReason,
+	}, nil
 }
