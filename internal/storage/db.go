@@ -9,10 +9,10 @@ import (
 )
 
 type DB struct {
- *sqlx.DB
+	*sqlx.DB
 }
 
-func NewDB(url string) (*DB, error) {
+func NewDB() (*DB, error) {
 	dbPath := getDBPath()
 
 	dir := filepath.Dir(dbPath)
@@ -31,4 +31,3 @@ func getDBPath() string {
 	dataDir := "data"
 	return filepath.Join(dataDir, "agent-coach.db")
 }
-

@@ -20,7 +20,7 @@ const (
 type AgentInput struct {
 	Message   string
 	Context   *models.AgentContext
-	GoalID    *string
+	GoalID    string
 	SessionID string
 }
 
