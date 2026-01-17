@@ -4,7 +4,7 @@ import "time"
 
 type LLMProviderConfig struct {
 	ID           int       `db:"id" json:"id"`
-	Name         string    `db:"name"`
+	Name         string    `db:"name" json:"name"`
 	Provider     string    `db:"provider" json:"provider"`
 	BaseURL      string    `db:"base_url" json:"base_url,omitempty"`
 	APIKey       string    `db:"api_key" json:"api_key,omitempty"`

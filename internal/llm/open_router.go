@@ -45,6 +45,10 @@ func (p *OpenRouterProvider) IsAvailable() bool {
 	return p.config.IsActive
 }
 
+func (p *OpenRouterProvider) Type() ProviderType {
+	return ProviderTypeOpenRouter
+}
+
 func (p *OpenRouterProvider) buildParams(req *CompletionRequest) *openai.ChatCompletionNewParams {
 	messages := make([]openai.ChatCompletionMessageParamUnion, len(req.Messages)+1)
 	messages[0] = openai.SystemMessage(req.SystemPrompt)

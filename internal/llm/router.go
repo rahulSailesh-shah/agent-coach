@@ -44,12 +44,42 @@ func (r *Router) SaveProviderConfig(ctx context.Context, config *models.LLMProvi
 	return r.refreshProviders(ctx)
 }
 
+func (r *Router) UpdateProviderConfig(ctx context.Context, config *models.LLMProviderConfig) error {
+	query := `
+		UPDATE llm_providers 
+		SET name = :name, provider = :provider, base_url = :base_url, api_key = :api_key, 
+		    default_model = :default_model, is_default = :is_default, is_active = :is_active,
+		    updated_at = CURRENT_TIMESTAMP
+		WHERE id = :id
+	`
+	_, err := r.db.NamedExecContext(ctx, query, config)
+	if err != nil {
+		return err
+	}
+
+	return r.refreshProviders(ctx)
+}
+
+func (r *Router) DeleteProviderConfig(ctx context.Context, id int) error {
+	query := `DELETE FROM llm_providers WHERE id = ?`
+	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	return r.refreshProviders(ctx)
+}
+
 func (r *Router) Complete(ctx context.Context, req *CompletionRequest, providers ...string) (*CompletionResponse, error) {
 	provider := r.resolveProvider(providers...)
 	if provider == nil {
 		return nil, fmt.Errorf("no provider found")
 	}
 	return provider.Complete(ctx, req)
+}
+
+func (r *Router) GetAvailableProviders(ctx context.Context) ([]ProviderType, error) {
+	return availableProviderTypes, nil
 }
 
 func (r *Router) loadProvidersFromDB(ctx context.Context) error {
@@ -84,6 +114,10 @@ func (r *Router) getProviderConfigs(ctx context.Context) ([]*models.LLMProviderC
 		return nil, err
 	}
 	return configs, nil
+}
+
+func (r *Router) GetProviderConfigs(ctx context.Context) ([]*models.LLMProviderConfig, error) {
+	return r.getProviderConfigs(ctx)
 }
 
 func (r *Router) createProviderFromConfig(config *models.LLMProviderConfig) (Provider, error) {

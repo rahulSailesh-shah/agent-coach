@@ -139,3 +139,36 @@ func (a *App) GetConversationHistory(coachID string, limit int) ([]*models.Conve
 	}
 	return a.service.GetConversationHistory(a.ctx, coachID, limit)
 }
+
+// ============================================================================
+// LLM Configuration Operations
+// ============================================================================
+
+func (a *App) GetLLMProviders() ([]llm.ProviderType, error) {
+	return a.llmRouter.GetAvailableProviders(a.ctx)
+}
+
+func (a *App) GetLLMProviderConfigs() ([]*models.LLMProviderConfig, error) {
+	return a.llmRouter.GetProviderConfigs(a.ctx)
+}
+
+func (a *App) SaveLLMProviderConfig(config models.LLMProviderConfig) (*models.LLMProviderConfig, error) {
+	if err := a.llmRouter.SaveProviderConfig(a.ctx, &config); err != nil {
+		return nil, fmt.Errorf("failed to save provider config: %w", err)
+	}
+	return &config, nil
+}
+
+func (a *App) UpdateLLMProviderConfig(config models.LLMProviderConfig) error {
+	if err := a.llmRouter.UpdateProviderConfig(a.ctx, &config); err != nil {
+		return fmt.Errorf("failed to update provider config: %w", err)
+	}
+	return nil
+}
+
+func (a *App) DeleteLLMProviderConfig(id int) error {
+	if err := a.llmRouter.DeleteProviderConfig(a.ctx, id); err != nil {
+		return fmt.Errorf("failed to delete provider config: %w", err)
+	}
+	return nil
+}

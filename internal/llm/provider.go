@@ -35,8 +35,21 @@ type CompletionResponse struct {
 	FinishReason string            `json:"finish_reason"`
 }
 
+type ProviderType string
+
+const (
+	ProviderTypeOpenRouter ProviderType = "openrouter"
+	ProviderTypeOllama     ProviderType = "ollama"
+)
+
+var availableProviderTypes = []ProviderType{
+	ProviderTypeOpenRouter,
+	ProviderTypeOllama,
+}
+
 type Provider interface {
 	Name() string
 	Complete(ctx context.Context, req *CompletionRequest) (*CompletionResponse, error)
 	IsAvailable() bool
+	Type() ProviderType
 }

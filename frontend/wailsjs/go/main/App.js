@@ -22,12 +22,24 @@ export function DeleteGoal(arg1) {
   return window['go']['main']['App']['DeleteGoal'](arg1);
 }
 
+export function DeleteLLMProviderConfig(arg1) {
+  return window['go']['main']['App']['DeleteLLMProviderConfig'](arg1);
+}
+
 export function GetConversationHistory(arg1, arg2) {
   return window['go']['main']['App']['GetConversationHistory'](arg1, arg2);
 }
 
 export function GetGoal(arg1) {
   return window['go']['main']['App']['GetGoal'](arg1);
+}
+
+export function GetLLMProviderConfigs() {
+  return window['go']['main']['App']['GetLLMProviderConfigs']();
+}
+
+export function GetLLMProviders() {
+  return window['go']['main']['App']['GetLLMProviders']();
 }
 
 export function GetTask(arg1) {
@@ -46,6 +58,14 @@ export function LogStruggle(arg1, arg2) {
   return window['go']['main']['App']['LogStruggle'](arg1, arg2);
 }
 
+export function SaveLLMProviderConfig(arg1) {
+  return window['go']['main']['App']['SaveLLMProviderConfig'](arg1);
+}
+
 export function UpdateGoal(arg1) {
   return window['go']['main']['App']['UpdateGoal'](arg1);
+}
+
+export function UpdateLLMProviderConfig(arg1) {
+  return window['go']['main']['App']['UpdateLLMProviderConfig'](arg1);
 }
